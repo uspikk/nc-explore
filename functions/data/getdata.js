@@ -222,7 +222,7 @@ function addmain(){
       debug("accrotation at accounts length")
       let batman = config.sleep * 1000 * 60
       if(config.continious === false){debug("saving debug");save();console.log("end of script...");return;}
-      else{accrotation=0;setTimeout(getstate, config.sleep, 1);return;}
+      else{accrotation=0;setTimeout(getstate, batman, 1);return;}
     }
   }
   debug("getting state")
