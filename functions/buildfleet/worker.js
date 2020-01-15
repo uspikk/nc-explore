@@ -29,13 +29,18 @@ function checkexplorers(planets){
       bugobj.busy = pnts.busy_until;
       debug(bugobj);
       bugobj = {};
-      if(pnts.activated === true && pnts.ship_skill === 20 && pnts.shipyard_level >= pnts.shipyard_min_level &&
+      if(pnts.activated === true){
+        if(pnts.activated === true && pnts.ship_skill === 20 && pnts.shipyard_level >= pnts.shipyard_min_level &&
          pnts.costs.coal < planets[0].qyt.coal && pnts.costs.copper < planets[0].qyt.copper &&
          pnts.costs.ore < planets[0].qyt.ore && pnts.costs.uranium < planets[0].qyt.uranium &&
          pnts.busy_until < d){
         debug("All true, building explorer II")
         buildexplorer(planets[0], pnts.type);
         return;
+      }
+      planets.shift();
+      checkexplorers(planets);
+      return;
       }
       else{
         for(var j=0;j<planets[0].shipyard.length;j++){

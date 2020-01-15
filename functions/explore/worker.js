@@ -6,8 +6,13 @@ let debug = require("../debug/worker.js").debug
 
 let bugobj = {};
 
+
 function precheck(data){
   if(data.length === 0){
+    if(shortestdistance.length > 0){
+      funkyshortestdistance([]);
+      return;
+    }
   	let nextstep = require("../data/getdata.js").addmain
     debug("out of planets, moving to next step")
   	nextstep();
@@ -27,6 +32,7 @@ function precheck(data){
       debug("Fleetis on explorer II, mida saab kasutada")
    		data[0].shipused = data[0].fleet[i].type;
    		data[0].consumption = data[0].fleet[i].consumption;
+      data[0].shipspeed = data[0].fleet[i].speed;
       data[0].step = 0;
       data[0].cube = 0;
       data[0].cubetarget = 0;
@@ -41,6 +47,7 @@ function precheck(data){
           debug("Fleetis on explorer, mida saab kasutada")
    				data[0].shipused = data[0].fleet[j].type;
    				data[0].consumption = data[0].fleet[j].consumption;
+          data[0].shipspeed = data[0].fleet[j].speed;
           data[0].step = 0;
           data[0].cube = 0;
           data[0].cubetarget = 0;
@@ -201,6 +208,7 @@ function checkfuel(planets){
     }
     function diff(a,b){return Math.abs(a-b);}
     let fuelrequired =  diff(planets[0].homecords.x, planets[0].potentialcords.x) + diff(planets[0].homecords.y, planets[0].potentialcords.y)
+    planets[0].distance = fuelrequired / planets[0].shipspeed;
     fuelrequired = fuelrequired * planets[0].consumption
     if(fuelrequired < planets[0].qyt.uranium){
       debug("on piisavalt kütsi")
@@ -209,8 +217,8 @@ function checkfuel(planets){
           planetfile.push(dummyobj);
           fs.writeFile(__dirname + '/planetcube.json', JSON.stringify(planetfile), function (err) {
             if (err) throw err;
-            debug("totransaction")
-            transaction(planets);
+            debug("toshortestdistance")
+            funkyshortestdistance(planets);
             return;
           });
           return;
@@ -219,8 +227,8 @@ function checkfuel(planets){
           planetfile[i] = dummyobj
           fs.writeFile(__dirname + '/planetcube.json', JSON.stringify(planetfile), function (err) {
             if (err) throw err;
-            debug("totransaction")
-            transaction(planets);
+            debug("toshortestdistance")
+            funkyshortestdistance(planets);
             return;
           });
           return;
@@ -232,7 +240,21 @@ function checkfuel(planets){
   });
 }
 
+let shortestdistance = [];
+
+function funkyshortestdistance(planets){
+ if(planets.length === 0){
+  shortestdistance = shortestdistance.sort(function(a,b){return a.distance - b.distance});
+  transaction(shortestdistance);
+  return;}
+ shortestdistance.push(planets[0]);
+ planets.shift();
+ precheck(planets);
+ return;
+}
+
 function transaction(data){
+  shortestdistance = [];
   dummyobj = [{
   "username": data[0].username,
   "type": "explorespace",
